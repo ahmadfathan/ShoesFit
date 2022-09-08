@@ -1,17 +1,14 @@
-package com.androiddev.shoesfit.Databases;
+package com.androiddev.shoesfit.db;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.Toast;
 
-import com.androiddev.shoesfit.Constants.Literals;
-import com.androiddev.shoesfit.Models.Filter;
-import com.androiddev.shoesfit.Models.Shoes;
-
-import org.json.JSONArray;
+import com.androiddev.shoesfit.R;
+import com.androiddev.shoesfit.model.Filter;
+import com.androiddev.shoesfit.model.Shoes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,8 +86,15 @@ public class DBHelper extends SQLiteOpenHelper {
         List<Shoes> shoesList = new ArrayList<>();
         // Select All Query
         String kebutuhan, celana;
-        kebutuhan = Literals.KEBUTUHAN[filter.getKebutuhan().getValue()];
-        celana = Literals.CELANA[filter.getCelana().getValue()];
+
+        ;
+        kebutuhan = mContext
+                .getResources()
+                .getStringArray(R.array.kebutuhan)[filter.getKebutuhan().getValue()];
+
+        celana = mContext
+                .getResources()
+                .getStringArray(R.array.celana)[filter.getCelana().getValue()];
 
         String harga = "";
         switch (filter.getHarga()){

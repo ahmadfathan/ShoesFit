@@ -1,3 +1,27 @@
 <resources>
     <string name="app_name">Shoes Fit</string>
+
+    <string-array name="kebutuhan">
+        <item>Mendaki</item>
+        <item>Olahraga</item>
+        <item>Rapat Formal</item>
+        <item>Pesta</item>
+    </string-array>
+
+    <string-array name="celana">
+        <item>Navy</item>
+        <item>Black</item>
+        <item>Blue</item>
+        <item>Light Grey</item>
+        <item>Dark Grey</item>
+        <item>White</item>
+        <item>Tan</item>
+        <item>Beige</item>
+        <item>Brown</item>
+        <item>Olive</item>
+        <item>Jeans</item>
+    </string-array>
 </resources>
+
+
+

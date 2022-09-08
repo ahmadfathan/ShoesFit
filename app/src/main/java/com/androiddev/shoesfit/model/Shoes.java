@@ -1,4 +1,4 @@
-package com.androiddev.shoesfit.Models;
+package com.androiddev.shoesfit.model;
 
 public class Shoes {
     int id;

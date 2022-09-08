@@ -1,22 +1,21 @@
-package com.androiddev.shoesfit.Activity;
+package com.androiddev.shoesfit.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.widget.Adapter;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.androiddev.shoesfit.Adapters.ShoesAdapter;
-import com.androiddev.shoesfit.Databases.DBHelper;
-import com.androiddev.shoesfit.Models.Filter;
-import com.androiddev.shoesfit.Models.Shoes;
+import com.androiddev.shoesfit.adapter.ShoesAdapter;
+import com.androiddev.shoesfit.db.DBHelper;
+import com.androiddev.shoesfit.model.Filter;
+import com.androiddev.shoesfit.model.Shoes;
 import com.androiddev.shoesfit.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShoesReviewActivity extends AppCompatActivity {
+public class ShoesReviewActivity extends BaseActivity {
 
     private int kebutuhan, celana, harga;
     private Filter filter;

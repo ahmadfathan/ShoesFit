@@ -1,4 +1,4 @@
-package com.androiddev.shoesfit.Activity;
+package com.androiddev.shoesfit.ui;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,25 +13,29 @@ import android.view.View;
 import android.widget.Button;
 
 import com.androiddev.shoesfit.R;
+import com.androiddev.shoesfit.databinding.ActivityMainBinding;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private Button btn_pengukuran, btn_rekomendasi;
+
+
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+
+        setContentView(binding.getRoot());
 
         initViews();
 
@@ -62,16 +66,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        Intent intent;
-        switch (v.getId()){
-            case R.id.btn_pengukuran:
-                intent = new Intent(MainActivity.this, MeasurementActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.btn_rekomendasi:
-                intent = new Intent(MainActivity.this, RecomendationActivity.class);
-                startActivity(intent);
-                break;
+        if (v.getId() == binding.btnPengukuran.getId()){
+            Intent intent = new Intent(MainActivity.this, MeasurementActivity.class);
+            startActivity(intent);
+        }else if (v.getId() == binding.btnRekomendasi.getId()){
+            Intent intent = new Intent(MainActivity.this, RecomendationActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Navigates user to app settings
      * NOTE: Keep proper title and message depending on your app
      */
+
     private void showSettingsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Need Permissions");

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary2"
-    tools:context=".Activity.RecomendationActivity">
+    tools:context=".ui.RecomendationActivity">
 
     <Spinner
         android:id="@+id/sp_celana"

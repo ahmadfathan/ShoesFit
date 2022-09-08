@@ -1,4 +1,4 @@
-package com.androiddev.shoesfit.Models;
+package com.androiddev.shoesfit.model;
 
 import java.util.HashMap;
 import java.util.Map;

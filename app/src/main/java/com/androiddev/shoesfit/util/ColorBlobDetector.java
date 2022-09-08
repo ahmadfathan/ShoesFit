@@ -1,4 +1,4 @@
-package com.androiddev.shoesfit.Utils;
+package com.androiddev.shoesfit.util;
 
 import android.util.Log;
 
@@ -12,7 +12,6 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 

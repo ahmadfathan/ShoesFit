@@ -1,21 +1,25 @@
-package com.androiddev.shoesfit.Activity;
+package com.androiddev.shoesfit.ui;
+
+import static org.opencv.android.CameraBridgeViewBase.CAMERA_ID_BACK;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
-import com.androiddev.shoesfit.Utils.ColorBlobDetector;
+import com.androiddev.shoesfit.databinding.ActivityMeasurementBinding;
+import com.androiddev.shoesfit.util.ColorBlobDetector;
 import com.androiddev.shoesfit.R;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -35,7 +39,7 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeasurementActivity extends Activity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
+public class MeasurementActivity extends BaseActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String  TAG              = "MeasurementActivity";
 
     private Mat                  mRgba;
@@ -45,9 +49,10 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
     private Mat                  mSpectrum;
     private Size                 SPECTRUM_SIZE;
     private Scalar               CONTOUR_COLOR;
-
-    private CameraBridgeViewBase mOpenCvCameraView;
+    
     private boolean begin = false;
+
+    private double footW, footH;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -55,8 +60,10 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
             if (status == LoaderCallbackInterface.SUCCESS) {
                 Log.d(TAG, "Test");
                 Log.i(TAG, "OpenCV loaded successfully");
-                mOpenCvCameraView.enableView();
-                mOpenCvCameraView.setOnTouchListener(MeasurementActivity.this);
+
+                captured = new Mat();
+                binding.cameraViewOpencv.enableView();
+                binding.cameraViewOpencv.setOnTouchListener(MeasurementActivity.this);
             } else {
                 super.onManagerConnected(status);
             }
@@ -68,19 +75,50 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
     }
 
     private boolean isPaperDetected = false;
+    private ActivityMeasurementBinding binding;
+
+    private boolean flashLightState = false;
+
+    private Mat captured = null;
+
+    private boolean paused = false;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "called onCreate");
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
+        binding = ActivityMeasurementBinding.inflate(getLayoutInflater());
+        
+        setContentView(binding.getRoot());
 
-        setContentView(R.layout.activity_measurement);
+        binding.cameraViewOpencv.setVisibility(SurfaceView.VISIBLE);
+        binding.cameraViewOpencv.setCvCameraViewListener(MeasurementActivity.this);
 
-        mOpenCvCameraView = findViewById(R.id.activity_surface_view);
-        mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-        mOpenCvCameraView.setCvCameraViewListener(MeasurementActivity.this);
+        binding.btnFlash.setOnClickListener(view -> {
+            flashLightState = !flashLightState;
+
+            if(flashLightState){
+                binding.cameraViewOpencv.turnOnFlashLight();
+            }else{
+                binding.cameraViewOpencv.turnOffFlashLight();
+            }
+        });
+
+        binding.btnRetry.setOnClickListener(view -> {
+            paused = false;
+            binding.containerOption.setVisibility(View.GONE);
+        });
+
+        binding.btnNext.setOnClickListener(view -> {
+            Intent intent = new Intent(MeasurementActivity.this, ResultActivity.class);
+            intent.putExtra("width", footW);
+            intent.putExtra("height", footH);
+
+            startActivity(intent);
+            finish();
+        });
 
         showTutorial();
     }
@@ -89,8 +127,8 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
     public void onPause()
     {
         super.onPause();
-        if (mOpenCvCameraView != null)
-            mOpenCvCameraView.disableView();
+
+        binding.cameraViewOpencv.disableView();
     }
 
     @Override
@@ -106,10 +144,10 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
         }
     }
 
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mOpenCvCameraView != null)
-            mOpenCvCameraView.disableView();
+        binding.cameraViewOpencv.disableView();
     }
 
     public void onCameraViewStarted(int width, int height) {
@@ -133,8 +171,8 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
         int cols = mRgba.cols();
         int rows = mRgba.rows();
 
-        int xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
-        int yOffset = (mOpenCvCameraView.getHeight() - rows) / 2;
+        int xOffset = (binding.cameraViewOpencv.getWidth() - cols) / 2;
+        int yOffset = (binding.cameraViewOpencv.getHeight() - rows) / 2;
 
         int x = (int)event.getX() - xOffset;
         int y = (int)event.getY() - yOffset;
@@ -185,7 +223,7 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
     }
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        if(begin){
+        if(begin && !paused){
             mRgba = inputFrame.rgba();
             mDetector.process(mRgba);
             List<MatOfPoint> contours = mDetector.getContours();
@@ -329,7 +367,11 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
                         }
                     }
 
-                    Point footYfrom = new Point(), footXfrom = new Point(), footYto = new Point(), footXto = new Point();
+                    Point footYfrom = new Point();
+                    Point footXfrom = new Point();
+                    Point footYto = new Point();
+                    Point footXto = new Point();
+
                     double minY = mRgba.height(), minX = mRgba.width(), maxX = 0;
 
                     for (Point point : p_inPaper) {
@@ -351,20 +393,51 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
                     footYto.set(new double[]{footYfrom.x, pBottomRight.y});
 
                     Imgproc.line(mRgba, footXfrom, footXto, new Scalar(255,0,0,255),3);
+
                     Imgproc.line(mRgba, footYfrom, footYto, new Scalar(255,0,0,255),3);
 
-                    double footW, footH;
+                    Imgproc.line(
+                            mRgba,
+                            new Point(footXfrom.x, footYfrom.y),
+                            new Point(footXto.x, footYfrom.y),
+                            new Scalar(255,255,0,255),3
+                    );
+
+                    Imgproc.line(
+                            mRgba,
+                            new Point(footXto.x, footYfrom.y),
+                            new Point(footXto.x, footYto.y),
+                            new Scalar(255,255,0,255),3
+                    );
+
+                    Imgproc.line(
+                            mRgba,
+                            new Point(footXfrom.x, footYto.y),
+                            new Point(footXto.x, footYto.y),
+                            new Scalar(255,255,0,255),3
+                    );
+
+                    Imgproc.line(
+                            mRgba,
+                            new Point(footXfrom.x, footYfrom.y),
+                            new Point(footXfrom.x, footYto.y),
+                            new Scalar(255,255,0,255),3
+                    );
+
                     // 210 x 297
 
                     footW = ((footXto.x - footXfrom.x) * 210)/(pBottomRight.x - pTopLeft.x);
                     footH = ((footYto.y - footYfrom.y) * 297)/(pBottomRight.y - pTopLeft.y);
 
-                    Intent intent = new Intent(MeasurementActivity.this, ResultActivity.class);
-                    intent.putExtra("width", footW);
-                    intent.putExtra("height", footH);
+                    paused = true;
 
-                    startActivity(intent);
-                    finish();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.containerOption.setVisibility(View.VISIBLE);
+                            binding.cameraViewOpencv.turnOffFlashLight();
+                        }
+                    });
 
                     //Imgproc.putText(mRgba,"" + (int)footH + "mm", footYfrom, Core.FONT_HERSHEY_PLAIN,4, new Scalar(0, 255, 0, 255),4);
                     //Imgproc.putText(mRgba,"" + (int)footW + "mm", footXto, Core.FONT_HERSHEY_PLAIN,4, new Scalar(0, 255, 0, 255),4);
@@ -384,10 +457,16 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
 
             //mSpectrum.copyTo(spectrumLabel);
 
-            return mRgba;
-        }else{
-            return mRgba;
+            if (paused) {
+                captured = mRgba.clone();
+            }
         }
+
+        if (paused) {
+            return captured;
+        }
+
+        return mRgba;
     }
 
     private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
@@ -408,12 +487,7 @@ public class MeasurementActivity extends Activity implements View.OnTouchListene
         // Setting Icon to Dialog
         adb.setIcon(R.mipmap.ic_launcher);
         // Setting OK Button
-        adb.setPositiveButton("Mengerti", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                begin = true;
-            }
-        });
+        adb.setPositiveButton("Mengerti", (dialog, which) -> begin = true);
 
         adb.show();
     }

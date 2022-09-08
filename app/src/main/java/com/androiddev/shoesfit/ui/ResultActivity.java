@@ -1,4 +1,4 @@
-package com.androiddev.shoesfit.Activity;
+package com.androiddev.shoesfit.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.androiddev.shoesfit.R;
 
-public class ResultActivity extends AppCompatActivity {
+public class ResultActivity extends BaseActivity {
 
     private Button btn_rekomendasi;
     private TextView tv_result;

@@ -1,19 +1,17 @@
-package com.androiddev.shoesfit.Activity;
+package com.androiddev.shoesfit.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.androiddev.shoesfit.Databases.DBHelper;
-import com.androiddev.shoesfit.Models.Filter;
-import com.androiddev.shoesfit.Models.Shoes;
+import com.androiddev.shoesfit.db.DBHelper;
+import com.androiddev.shoesfit.model.Shoes;
 import com.androiddev.shoesfit.R;
 
 import org.json.JSONArray;
@@ -25,7 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecomendationActivity extends AppCompatActivity {
+public class RecomendationActivity extends BaseActivity {
 
     private DBHelper dbHelper;
     private List<Shoes> shoesList;

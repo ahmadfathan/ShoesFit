@@ -4,11 +4,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.MeasurementActivity">
+    tools:context=".ui.MeasurementActivity">
 
-    <org.opencv.android.JavaCameraView
+    <com.androiddev.shoesfit.CustomCameraView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/activity_surface_view"/>
+        android:id="@+id/camera_view_opencv"/>
+
+    <ImageButton
+        app:tint="@android:color/white"
+        android:background="@android:color/transparent"
+        android:layout_margin="16dp"
+        android:id="@+id/btn_flash"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:srcCompat="@drawable/ic_baseline_flashlight_on_24" />
+
+    <LinearLayout
+        android:id="@+id/container_option"
+        android:visibility="gone"
+        android:layout_margin="8dp"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_retry"
+            android:text="Retry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btn_next"
+            android:text="Next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
 </FrameLayout>
